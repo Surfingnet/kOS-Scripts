@@ -1,10 +1,17 @@
 @lazyglobal off.
 
 // !!!!!!!! ANTEnNAS AND SOLAR PANELS ON ACTION GROUP ONE (AG1) !!!!!!!!
+// !!!!!!!! FAIRINGS ON ACTION GROUP SIX (AG6) !!!!!!!!
+
+WHEN ship:altitude > ship:body:atm:height then {
+  AG6 ON.
+  AG1 ON.
+}
 
 // ascentController :: int* -> int* -> int* -> float* -> ascentController
 function ascentController {
-    parameter   simMaxThrust is 1.0, // simulation margins 
+    parameter   atmoBypass is false, // if true, completion is only about apoapsis, if false it also needs to be out of atmosphere
+                simMaxThrust is 1.0, // simulation margins 
                 desiredAp is 100000, // Min 100000 meters
                 launchPlane is 90, // In degrees
                 ascensionThrustPrecision is 1000, // In meters. Apoapsis this close to desired altitude starts lowering throttle.
@@ -24,7 +31,7 @@ function ascentController {
     //public getSteering :: void -> direction
     function getSteering {
         local targetPitch to 90 - 90 * max(0, min(1, altitude / desiredAp)).
-        local targetDirection to launchPlane. // TODO
+        local targetDirection to launchPlane. // TODO corrective
         return heading(targetDirection, targetPitch).
     }
 
@@ -56,14 +63,12 @@ function ascentController {
             wait 0.
         }
 
-        toggle AG1.
-
         if isUnlocking { unlock throttle. unlock steering. }
     }
 
 
     // public completed :: void -> bool
-    function completed { return ship:apoapsis >= desiredAp and ship:altitude > ship:body:atm:height. }
+    function completed { return ship:apoapsis >= desiredAp and (atmoBypass or ship:altitude > ship:body:atm:height). }
 
     // Return Public Fields
     return lexicon(
