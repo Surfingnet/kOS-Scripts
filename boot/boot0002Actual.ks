@@ -35,6 +35,7 @@ tprint("Ready").
 local preStagePartCount is 0.
 local shipParts is ship:parts.
 for part in shipParts {
+    part:name.// Just to not trigger variable unused warning...
     set preStagePartCount to preStagePartCount + 1.
 }
 
@@ -45,6 +46,7 @@ until not (currentPartCount = preStagePartCount) {
     set currentPartCount to 0.
     set shipParts to ship:parts.
     for part in shipParts {
+        part:name.
         set currentPartCount to currentPartCount + 1.
     }
     wait 0.
